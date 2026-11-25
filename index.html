@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>千日千句回報系統</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:20px 14px;
+  background:linear-gradient(145deg,#f8f1e4,#eee2cc);
+  color:#51432f;
+  font-family:"Noto Serif TC","Microsoft JhengHei",serif;
+}
+.container{
+  max-width:560px;
+  margin:0 auto;
+  background:#fffdf8;
+  border:1px solid #d8c39a;
+  border-radius:18px;
+  padding:25px 20px;
+  box-shadow:0 8px 28px #6b54201c;
+}
+.top{text-align:center}
+.lotus{font-size:30px;margin-bottom:8px}
+h1{
+  font-size:25px;
+  letter-spacing:2px;
+  color:#8b672d;
+  margin:8px 0;
+}
+.subtitle{font-size:14px;color:#927c5b}
+.line{
+  height:1px;
+  background:#ddcba8;
+  margin:22px 0;
+}
+.notice{
+  background:#f7f0e3;
+  border-radius:10px;
+  padding:14px;
+  font-size:14px;
+  line-height:1.9;
+}
+.notice a{color:#936a2b;word-break:break-all}
+h2{
+  font-size:17px;
+  color:#8b672d;
+  margin:22px 0 14px;
+}
+label{
+  display:block;
+  font-size:15px;
+  margin:17px 0 7px;
+}
+.required{color:#b64b36}
+input{
+  width:100%;
+  padding:13px 12px;
+  border:1px solid #d8c9ad;
+  border-radius:8px;
+  background:#fffefa;
+  font-size:16px;
+  color:#51432f;
+}
+input:focus{outline:2px solid #c7a76b}
+.hint{font-size:12px;color:#98866b;margin-top:5px}
+button{
+  width:100%;
+  border:0;
+  border-radius:30px;
+  padding:15px;
+  margin-top:23px;
+  background:#98733b;
+  color:white;
+  font-size:17px;
+  letter-spacing:2px;
+  cursor:pointer;
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+.status{
+  text-align:center;
+  font-size:14px;
+  color:#8b672d;
+  margin-top:14px;
+  line-height:1.8;
+}
+.success{
+  display:none;
+  text-align:center;
+  padding:25px 5px;
+  line-height:2;
+}
+.success h2{font-size:23px}
+.footer{
+  text-align:center;
+  font-size:13px;
+  color:#9a896e;
+  margin-top:22px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="top">
+    <div class="lotus">☘️ 🙏 ☘️</div>
+    <h1>千日千句回報系統</h1>
+    <div class="subtitle">千日精進・功德圓滿・法喜吉祥</div>
+  </div>
+
+  <div class="line"></div>
+
+  <div id="formArea">
+    <div class="notice">
+      <strong>【圓滿獎勵影片申請】</strong><br>
+      當家師父吉祥：<br>
+      懺悔弟子已圓滿千日千句地藏聖號，向師長提出圓滿獎勵申請。<br><br>
+      若忘記相關訊息，請至千萬佛菩薩護國佑民聊天室查詢：<br>
+      <a href="https://lin.ee/yx9QNrF" target="_blank">
+        https://lin.ee/yx9QNrF
+      </a>
+    </div>
+
+    <h2>☘️ 請填寫圓滿申請資料</h2>
+
+    <label>代申請人 <span class="required">*</span></label>
+    <input id="applicant" type="text" placeholder="本人申請請填寫本人姓名">
+    <div class="hint">本人申請請填本人姓名；代他人申請請填代申請人姓名。</div>
+
+    <label>持誦者 <span class="required">*</span></label>
+    <input id="reciter" type="text" placeholder="請輸入持誦者姓名">
+
+    <label>區域 <span class="required">*</span></label>
+    <input id="region" type="text" placeholder="請輸入所在區域">
+
+    <label>本次圓滿千日千句福卡編號 <span class="required">*</span></label>
+    <input id="cardNumber" type="text" placeholder="請輸入福卡編號">
+
+    <label>發願開始稱念日期 <span class="required">*</span></label>
+    <input id="startDate" type="date">
+
+    <label>圓滿千日千句日期 <span class="required">*</span></label>
+    <input id="finishDate" type="date">
+
+    <button id="sendBtn" onclick="submitForm()">送出圓滿獎勵影片申請</button>
+    <div class="status" id="status">請確認資料正確後再送出。</div>
+  </div>
+
+  <div class="success" id="successArea">
+    <div style="font-size:42px">🙏</div>
+    <h2>申請資料已送出</h2>
+    <p>感恩您的精進與發心。<br>
+    祈願功德圓滿，福慧增長。<br>
+    阿彌陀佛！</p>
+  </div>
+
+  <div class="footer">
+    南無大願地藏王菩薩 🙏
+  </div>
+</div>
+
+<script>
+const LIFF_ID = "YOUR_LIFF_ID";
+
+let liffReady = false;
+
+async function initLiff(){
+  const status = document.getElementById("status");
+  try{
+    if(LIFF_ID === "YOUR_LIFF_ID"){
+      status.textContent = "網頁已建立，等待設定 LIFF。";
+      return;
+    }
+
+    await liff.init({liffId:LIFF_ID});
+
+    if(!liff.isLoggedIn()){
+      liff.login();
+      return;
+    }
+
+    const context = liff.getContext();
+    if(!liff.isInClient() ||
+       !context ||
+       !["utou","group","room"].includes(context.type)){
+      status.textContent =
+        "請從 LINE 聊天室或官方帳號圖文選單開啟本申請頁面。";
+      return;
+    }
+
+    liffReady = true;
+    status.textContent = "LINE 身分連線成功，可以填寫申請。";
+  }catch(error){
+    status.textContent = "LINE 連線失敗，請重新開啟頁面。";
+    console.error(error);
+  }
+}
+
+async function submitForm(){
+  const applicant = document.getElementById("applicant").value.trim();
+  const reciter = document.getElementById("reciter").value.trim();
+  const region = document.getElementById("region").value.trim();
+  const cardNumber = document.getElementById("cardNumber").value.trim();
+  const startDate = document.getElementById("startDate").value;
+  const finishDate = document.getElementById("finishDate").value;
+  const status = document.getElementById("status");
+  const btn = document.getElementById("sendBtn");
+
+  if(!applicant || !reciter || !region ||
+     !cardNumber || !startDate || !finishDate){
+    alert("請完整填寫所有必填欄位。");
+    return;
+  }
+
+  if(finishDate < startDate){
+    alert("圓滿日期不可早於發願開始日期，請確認日期。");
+    return;
+  }
+
+  if(!liffReady){
+    alert("目前尚未完成 LINE 連線，請從 LINE 官方帳號圖文選單進入。");
+    return;
+  }
+
+  const message =
+`☘️【圓滿獎勵影片申請】
+
+當家師父吉祥：
+懺悔弟子已圓滿千日千句地藏聖號，向師長提出圓滿獎勵申請。
+
+若忘記相關訊息，請至千萬佛菩薩護國佑民聊天室查詢：
+https://lin.ee/yx9QNrF
+
+🔹代申請人：${applicant}
+🔹持誦者：${reciter}
+🔹區域：${region}
+🔹本次圓滿千日千句福卡編號：${cardNumber}
+🔹發願開始稱念日期：${startDate}
+🔹圓滿千日千句日期：${finishDate}
+
+祈請當家師父賜予弟子「千日千句圓滿獎勵影片」，感恩當家師父慈悲。
+
+懺悔弟子 ${applicant} 虔誠頂禮`;
+
+  try{
+    btn.disabled = true;
+    status.textContent = "正在送出申請，請稍候……";
+
+    await liff.sendMessages([
+      {type:"text",text:message}
+    ]);
+
+    document.getElementById("formArea").style.display = "none";
+    document.getElementById("successArea").style.display = "block";
+
+  }catch(error){
+    console.error(error);
+    status.textContent = "送出失敗，請確認 LINE 連線後再試一次。";
+    btn.disabled = false;
+  }
+}
+
+initLiff();
+</script>
+</body>
+</html>
